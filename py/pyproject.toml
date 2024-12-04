@@ -11,6 +11,10 @@ dependencies = []
 # aoc24 = "aoc24:main"
 d1p1 = "aoc24.day1:part1"
 d1p2 = "aoc24.day1:part2"
+d2p1 = "aoc24.day2:part1"
+d2p2 = "aoc24.day2:part2"
+d3p1 = "aoc24.day3:part1"
+d3p2 = "aoc24.day3:part2"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,0 +1,16 @@
+[package]
+name = "aoc24rs"
+version = "0.1.0"
+authors = ["Arslan <rslnkrmt2552@gmail.com>"]
+edition = "2021"
+
+[lib]
+name = "aoclib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "aoc24"
+path = "src/main.rs"
+
+[dependencies]
+itertools = "0.13.0"
