@@ -1,3 +1,3 @@
 fn main() {
-    aoclib::day2::part2();
+    aoclib::day3::part1();
 }
