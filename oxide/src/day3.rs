@@ -1,46 +1,100 @@
 use chumsky::{
     error::Cheap,
-    prelude::{any, end, just},
+    prelude::{end, just},
     text::{self, TextParser},
     Parser,
 };
-use regex::Regex;
-use std::cell::LazyCell;
 
 use crate::utils;
 
 #[derive(Debug)]
+struct Multiply {
+    left: u32,
+    right: u32,
+}
+
+impl Multiply {
+    fn eval(&self) -> u32 {
+        self.left * self.right
+    }
+}
+
+#[derive(Debug)]
 enum Token {
-    Mul { left: u32, right: u32 },
+    Mul(Multiply),
     Do,
     Dont,
 }
 
-const MULRE: LazyCell<Regex> =
-    LazyCell::new(|| Regex::new(r"mul\((\d+)\,(\d+)\)").expect("invalid regex"));
+struct Program {
+    tokens: Vec<Token>,
+    mul_enabled: bool,
+}
 
-fn gen_parser() -> impl Parser<char, Vec<Token>, Error = Cheap<char>> {
+impl From<Vec<Multiply>> for Program {
+    fn from(values: Vec<Multiply>) -> Self {
+        let tokens = values.into_iter().map(Token::Mul).collect();
+
+        Self::new(tokens)
+    }
+}
+
+impl From<Vec<Token>> for Program {
+    fn from(tokens: Vec<Token>) -> Self {
+        Self::new(tokens)
+    }
+}
+
+impl Program {
+    fn new(tokens: Vec<Token>) -> Self {
+        Self {
+            tokens,
+            mul_enabled: true,
+        }
+    }
+
+    fn eval(&self) -> u64 {
+        let mut acc: u64 = 0;
+
+        let mut is_mul_enabled = true;
+
+        for token in &self.tokens {
+            match token {
+                Token::Do => {
+                    is_mul_enabled = true;
+                }
+                Token::Dont => {
+                    is_mul_enabled = false;
+                }
+                Token::Mul(Multiply { left, right }) => {
+                    if is_mul_enabled {
+                        acc += (*left as u64) * (*right as u64);
+                    }
+                }
+            }
+        }
+
+        acc
+    }
+}
+
+fn gen_general_parser() -> impl Parser<char, Vec<Token>, Error = Cheap<char>> {
     let do_instr = just("don't()").map(|_| Token::Dont);
     let dont_instr = just("do()").map(|_| Token::Do);
 
     let comma = just(',');
-    let digits = text::digits(10).from_str().unwrapped();
-    // let digits = filter(|c: &char| c.is_ascii_digit())
-    //     .repeated()
-    //     .at_least(1)
-    //     .collect::<String>()
-    //     .map(|s| s.parse::<u32>().unwrap());
+    let digits = text::int(10).from_str().unwrapped();
 
     let mul_instr = just("mul(")
         .ignore_then(digits)
         .then_ignore(comma.padded())
         .then(digits)
         .then_ignore(just(')'))
-        .map(|(left, right)| Token::Mul { left, right });
+        .map(|(left, right)| Token::Mul(Multiply { left, right }));
 
     let instruction = mul_instr.or(dont_instr).or(do_instr);
 
-    let garbage = any().ignored().repeated().at_least(0);
+    let garbage = instruction.not().ignored().repeated().at_least(0);
 
     garbage
         .ignore_then(instruction)
@@ -49,49 +103,54 @@ fn gen_parser() -> impl Parser<char, Vec<Token>, Error = Cheap<char>> {
         .then_ignore(end())
 }
 
-fn tokenize(hay: &str) {
-    println!("{}", hay);
-    let parser = gen_parser();
+fn gen_mul_parser() -> impl Parser<char, Vec<Multiply>, Error = Cheap<char>> {
+    let comma = just(',');
+    let digits = text::int(10).from_str().unwrapped();
 
-    match parser.parse(hay) {
-        Ok(tokens) => {
-            for token in tokens {
-                println!("{:?}", &token);
-            }
-        }
-        Err(e) => {
-            for err in e {
-                println!("Parsing error: {:?}", err);
-            }
-        }
-    };
+    let mul_instr = just("mul(")
+        .ignore_then(digits)
+        .then_ignore(comma.padded())
+        .then(digits)
+        .then_ignore(just(')'))
+        .map(|(left, right)| Multiply { left, right });
+
+    let garbage = mul_instr.not().ignored().repeated().at_least(0);
+
+    garbage
+        .ignore_then(mul_instr)
+        .then_ignore(garbage)
+        .repeated()
+        .then_ignore(end())
+}
+
+fn tokenize_general(hay: &str) -> Vec<Token> {
+    let parser = gen_general_parser();
+
+    parser.parse(hay).unwrap()
+}
+
+fn tokenize_mul_only(hay: &str) -> Vec<Multiply> {
+    let parser = gen_mul_parser();
+
+    parser.parse(hay).unwrap()
 }
 
 pub fn part1() {
     let s = utils::read_day_file(3);
+    let tokens = tokenize_mul_only(&s);
+    let program = Program::from(tokens);
 
-    // let res = MULRE
-    //     .captures_iter(&s)
-    //     .map(|m| {
-    //         let cap1 = m.get(1).expect("first element not found");
-    //         let cap2 = m.get(2).expect("second element not found");
-    //
-    //         let op1 = cap1.as_str().parse::<u32>().unwrap();
-    //         // .expect("first element cannot be parsed into u32");
-    //         let op2 = cap2
-    //             .as_str()
-    //             .parse::<u32>()
-    //             .expect("second element cannot be parsed into u32");
-    //
-    //         op1 * op2
-    //     })
-    //     .sum::<u32>();
+    let res = program.eval();
 
-    // println!("Day 3 part 1: {:?}", res);
-    tokenize(&s);
+    println!("Day 3 part 1: {:?}", res);
 }
 
 pub fn part2() {
     let s = utils::read_day_file(3);
-    tokenize(&s);
+    let tokens = tokenize_general(&s);
+    let program = Program::from(tokens);
+
+    let res = program.eval();
+
+    println!("Day 3 part 2: {:?}", res);
 }
