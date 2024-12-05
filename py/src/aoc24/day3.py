@@ -1,43 +1,77 @@
+import enum
 from pathlib import Path
+from typing import NamedTuple
+
+import parsy
 from aoc24 import utils
 import re
+from parsy import digit, match_item
 
 MULRE = re.compile(r"(don\'t\(\))|(do\(\))|(mul\((\d+)\,(\d+)\))")
 
-print(
-    MULRE.findall(
-        "xdon't()mul(2,4)do()%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
-    )
-)
+
+class MulInstr(NamedTuple):
+    left: int
+    right: int
+
+
+class Do_Or_Dont(enum.Enum):
+    Do = "do()"
+    Dont = "don't()"
+
+
+def parse_instructions(s: str):
+    do_dont = parsy.from_enum(Do_Or_Dont)
+
+    num = digit.at_least(1).concat().map(int)
+    mul_instr = parsy.seq(
+        __lparen=parsy.string("mul("),
+        left=num.desc("left"),
+        __comma=match_item(","),
+        right=num.desc("right"),
+        __end=match_item(")"),
+    ).combine_dict(MulInstr)
+
+    valid_instr = mul_instr | do_dont
+
+    instr = (valid_instr | parsy.any_char).many()
+
+    return [
+        t
+        for t in instr.parse(s)
+        if isinstance(t, Do_Or_Dont) or isinstance(t, MulInstr)
+    ]
 
 
 def read_data(pth: Path):
-    lines = pth.read_text().splitlines()
+    txt = pth.read_text()
+    tokens = parse_instructions(txt)
 
-    group_gen = (match.groups() for line in lines for match in MULRE.finditer(line))
-    print(list(group_gen))
-    tuple_gen = ((int(a), int(b)) for (a, b) in group_gen)
-
-    to_mul: list[tuple[int, int]] = list(tuple_gen)
-
-    print(len(to_mul))
-
-    return to_mul
+    return tokens
 
 
 def part1():
     data_pth = utils.get_data_file(3)
     data = read_data(data_pth)
+    res = 0
+    for token in data:
+        if isinstance(token, MulInstr):
+            res += token.left * token.right
 
-    final = sum(a * b for a, b in data)
-
-    print(f"Day 2 part 1: {final}")
+    print(f"Day 3 part 1: {res}")
 
 
 def part2():
     data_pth = utils.get_data_file(3)
     data = read_data(data_pth)
 
-    final = sum([1])
+    res = 0
+    is_mul_enabled = True
 
-    print(f"Day 2 part 2: {final}")
+    for token in data:
+        if isinstance(token, Do_Or_Dont):
+            is_mul_enabled = token == Do_Or_Dont.Do
+        elif is_mul_enabled:
+            res += token.left * token.right
+
+    print(f"Day 3 part 2: {res}")
