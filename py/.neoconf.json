@@ -1,7 +1,0 @@
-{
-  "lspconfig": {
-    "basedpyright": {
-      "python.pythonPath": "./.venv/bin/python"
-    }
-  }
-}
