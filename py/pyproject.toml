@@ -19,6 +19,8 @@ d4p1 = "aoc24.day4:part1"
 d4p2 = "aoc24.day4:part2"
 d5p1 = "aoc24.day5:part1"
 d5p2 = "aoc24.day5:part2"
+d6p1 = "aoc24.day6:part1"
+d6p2 = "aoc24.day6:part2"
 
 [build-system]
 requires = ["hatchling"]
@@ -33,3 +35,18 @@ dev = [
   "polars>=1.16.0",
   "seaborn>=0.13.2",
 ]
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "N", "A", "PL", "PERF", "RUF"]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
