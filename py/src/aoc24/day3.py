@@ -16,13 +16,13 @@ class MulInstr(NamedTuple):
     right: int
 
 
-class Do_Or_Dont(enum.Enum):
+class DoOrDont(enum.Enum):
     Do = "do()"
     Dont = "don't()"
 
 
 def parse_instructions(s: str):
-    do_dont = parsy.from_enum(Do_Or_Dont)
+    do_dont = parsy.from_enum(DoOrDont)
 
     num = digit.at_least(1).concat().map(int)
     mul_instr = parsy.seq(
@@ -37,18 +37,12 @@ def parse_instructions(s: str):
 
     instr = (valid_instr | parsy.any_char).many()
 
-    return [
-        t
-        for t in instr.parse(s)
-        if isinstance(t, Do_Or_Dont) or isinstance(t, MulInstr)
-    ]
+    return [t for t in instr.parse(s) if isinstance(t, DoOrDont | MulInstr)]
 
 
 def read_data(pth: Path):
     txt = pth.read_text()
-    tokens = parse_instructions(txt)
-
-    return tokens
+    return parse_instructions(txt)
 
 
 def part1():
@@ -70,8 +64,8 @@ def part2():
     is_mul_enabled = True
 
     for token in data:
-        if isinstance(token, Do_Or_Dont):
-            is_mul_enabled = token == Do_Or_Dont.Do
+        if isinstance(token, DoOrDont):
+            is_mul_enabled = token == DoOrDont.Do
         elif is_mul_enabled:
             res += token.left * token.right
 

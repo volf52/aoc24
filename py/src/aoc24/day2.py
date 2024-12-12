@@ -1,17 +1,19 @@
+import itertools
 from pathlib import Path
 from typing import Self
+
 from aoc24 import utils
 
 
 class Report:
-    __slots__ = ("__readings", "__condist")
+    __slots__ = ("__condist", "__readings")
 
     __readings: list[int]
     __condist: list[int]
 
-    def __init__(self, readings: list[int]):
+    def __init__(self, readings: list[int]) -> None:
         self.__readings = readings
-        self.__condist = [(a - b) for (a, b) in zip(readings[:-1], readings[1:])]
+        self.__condist = [(a - b) for (a, b) in itertools.pairwise(readings)]
 
     @classmethod
     def from_str(cls, line: str) -> Self:
@@ -52,9 +54,7 @@ class Report:
 def read_data(pth: Path) -> list[Report]:
     lines = pth.read_text().splitlines()
 
-    reports = [Report.from_str(s) for s in lines]
-
-    return reports
+    return [Report.from_str(s) for s in lines]
 
 
 def part1():

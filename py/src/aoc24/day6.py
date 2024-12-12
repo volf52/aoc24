@@ -1,12 +1,12 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Callable, Literal, Self
+from typing import Literal, Self
 
 from aoc24 import utils
 
 Pos = tuple[int, int]
 NewPosFunc = Callable[[Pos], Pos]
-TOrientation = Literal[">"] | Literal["<"] | Literal["^"] | Literal["v"]
+TOrientation = Literal[">", "<", "^", "v"]
 Grid = list[list[str]]
 
 
@@ -47,7 +47,7 @@ class Map:
 
     @classmethod
     def from_lines(cls, lines: Sequence[str]) -> Self:
-        grid: Grid = [[t for t in x] for x in lines]
+        grid: Grid = [list(x) for x in lines]
         return cls(grid=grid, _traversed=False)
 
     @classmethod
@@ -90,7 +90,8 @@ class Map:
                 break
 
         if orientation is None:
-            raise ValueError("No guard char in map")
+            msg = "No guard char in map"
+            raise ValueError(msg)
 
         # Patrol across the map
         while True:

@@ -1,6 +1,7 @@
-from pathlib import Path
-from aoc24 import utils
 from collections import Counter
+from pathlib import Path
+
+from aoc24 import utils
 
 
 def read_data(pth: Path) -> tuple[list[int], list[int]]:
@@ -24,7 +25,7 @@ def part1():
     datapth = utils.get_data_file(1)
     lst_a, lst_b = read_data(datapth)
 
-    distances = (abs(a - b) for a, b in zip(lst_a, lst_b))
+    distances = (abs(a - b) for a, b in zip(lst_a, lst_b, strict=False))
     final = sum(distances)
 
     print(f"Day 1 part 1: {final}")

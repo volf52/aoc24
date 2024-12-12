@@ -1,7 +1,9 @@
-from typing import Self
-from aoc24 import utils
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Self
+
+from aoc24 import utils
 
 Page = str
 Order = list[Page]
@@ -15,20 +17,20 @@ class Processed:
     orders: list[Order]
 
     @classmethod
-    def from_lines(cls, lines: list[str]) -> Self:
+    def from_lines(cls, lines: Sequence[str]) -> Self:
         dependencies: dict[Page, set[Page]] = defaultdict(set)
         dependents: Deps = defaultdict(list)
 
-        for i, line in enumerate(lines):
+        offset = 0
+        for line in lines:
             if line == "":
                 break
             x, y = line.split("|")
             dependencies[y].add(x)
             dependents[x].append(y)
+            offset += 1
 
-        orders: list[Order] = []
-        for line in lines[i + 1 :]:
-            orders.append(line.split(","))
+        orders: list[Order] = [line.split(",") for line in lines[offset + 1 :]]
 
         return cls(dependencies=dependencies, dependents=dependents, orders=orders)
 
@@ -70,7 +72,8 @@ def get_correct_order(processed: Processed, order: Order) -> Order:
     new_order: Order = order[:]
 
     i = 0
-    # Kinda like insertion sort - ensure that the part before i is okay, and keep a value's deps before it by swapping
+    # Kinda like insertion sort ensure that the part before i is okay,
+    # and keep a value's deps before it by swapping
     while i < len(new_order):
         curr = new_order[i]
         curr_deps = processed.dependencies.get(curr, set())
@@ -107,8 +110,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    import time
-
     lines = """47|53
 97|13
 97|61

@@ -1,4 +1,5 @@
 from collections.abc import Generator, Sequence
+
 from aoc24 import utils
 
 SEQ = "XMAS"
@@ -12,10 +13,9 @@ def line_count(line: str) -> int:
     return line.count(SEQ) + line.count(SEQ_REV)
 
 
-def candidate_generator(lines: Sequence[str]) -> Generator[str, None, None]:
-    for line in lines:
-        yield line
-        # yield line[::-1]
+def candidate_generator(lines: Sequence[str]) -> Generator[str]:
+    yield from lines
+    # yield line[::-1]
 
     total_rows = len(lines)
     total_cols = len(lines[0])
@@ -55,9 +55,9 @@ def count_mas_x(grid: Sequence[str]) -> int:
     n_rows = len(grid)
     n_cols = len(grid[0])
 
-    def show_x_shape(center_row: int, center_col: int):
+    def show_x_shape(center_row: int, center_col: int) -> None:
         print(
-            f"{grid[center_row-1][center_col-1]}-{grid[center_row-1][center_col+1]}\n-{grid[center_row][center_col]}-\n{grid[center_row+1][center_col-1]}-{grid[center_row+1][center_col+1]}"
+            f"{grid[center_row-1][center_col-1]}-{grid[center_row-1][center_col+1]}\n-{grid[center_row][center_col]}-\n{grid[center_row+1][center_col-1]}-{grid[center_row+1][center_col+1]}",
         )
 
     def is_x_shape(center_row: int, center_col: int) -> bool:
@@ -77,10 +77,9 @@ def count_mas_x(grid: Sequence[str]) -> int:
             if not main_diag_ok:
                 return False
 
-            alt_diag_ok = (bl == SUB_SEQ[0] and tr == SUB_SEQ[2]) or (
+            return (bl == SUB_SEQ[0] and tr == SUB_SEQ[2]) or (
                 bl == SUB_SEQ_REV[0] and tr == SUB_SEQ_REV[2]
             )
-            return alt_diag_ok
         except IndexError:
             return False
 
