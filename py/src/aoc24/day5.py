@@ -3,26 +3,27 @@ from aoc24 import utils
 from collections import defaultdict
 from dataclasses import dataclass
 
-Order = list[str]
-Deps = dict[str, list[str]]
+Page = str
+Order = list[Page]
+Deps = dict[Page, list[Page]]
 
 
 @dataclass
 class Processed:
-    dependencies: Deps
+    dependencies: dict[Page, set[Page]]
     dependents: Deps
     orders: list[Order]
 
     @classmethod
     def from_lines(cls, lines: list[str]) -> Self:
-        dependencies: Deps = defaultdict(list)
+        dependencies: dict[Page, set[Page]] = defaultdict(set)
         dependents: Deps = defaultdict(list)
 
         for i, line in enumerate(lines):
             if line == "":
                 break
             x, y = line.split("|")
-            dependencies[y].append(x)
+            dependencies[y].add(x)
             dependents[x].append(y)
 
         orders: list[Order] = []
@@ -65,13 +66,34 @@ def part1():
     print(f"Day 5 part 1: {count}")
 
 
+def get_correct_order(processed: Processed, order: Order) -> Order:
+    new_order: Order = order[:]
+
+    i = 0
+    # Kinda like insertion sort - ensure that the part before i is okay, and keep a value's deps before it by swapping
+    while i < len(new_order):
+        curr = new_order[i]
+        curr_deps = processed.dependencies.get(curr, set())
+        swapped = False
+        for j, other in enumerate(new_order[i + 1 :], start=i + 1):
+            if other in curr_deps:
+                new_order[i], new_order[j] = new_order[j], new_order[i]
+                swapped = True
+                break
+        if not swapped:
+            i += 1
+
+    return new_order
+
+
 def part2_count(processed: Processed):
     count = 0
     for order in processed.orders:
         if not processed.is_order_correct(order):
             # find correct
+            correct_order = get_correct_order(processed, order)
             # get mid of correct
-            mid = 0
+            mid = correct_order[len(correct_order) // 2]
 
             count += int(mid)
     return count
@@ -85,6 +107,8 @@ def part2():
 
 
 if __name__ == "__main__":
+    import time
+
     lines = """47|53
 97|13
 97|61
@@ -121,7 +145,10 @@ if __name__ == "__main__":
     for a, b in processed.dependents.items():
         if len(b) > 1:
             print(a, b)
-
+    print("-" * 70)
+    for order in processed.orders:
+        print(order)
     print("-" * 70)
     print(part1_count(processed))
     print(part2_count(processed))
+    print(get_correct_order(processed, processed.orders[5]))
