@@ -21,6 +21,8 @@ d5p1 = "aoc24.day5:part1"
 d5p2 = "aoc24.day5:part2"
 d6p1 = "aoc24.day6:part1"
 d6p2 = "aoc24.day6:part2"
+d7p1 = "aoc24.day7:part1"
+d7p2 = "aoc24.day7:part2"
 
 [build-system]
 requires = ["hatchling"]
@@ -37,7 +39,7 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 88
+line-length = 97
 indent-width = 4
 target-version = "py313"
 

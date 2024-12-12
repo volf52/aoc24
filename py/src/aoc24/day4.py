@@ -28,20 +28,14 @@ def candidate_generator(lines: Sequence[str]) -> Generator[str]:
     # diag - rows
     for d in range(-(total_rows - SEQ_LEN), total_cols - SEQ_LEN + 1):
         diag = "".join(
-            lines[r][c]
-            for r in range(total_rows)
-            for c in range(total_cols)
-            if r - c == d
+            lines[r][c] for r in range(total_rows) for c in range(total_cols) if r - c == d
         )
         if len(diag) >= SEQ_LEN:
             yield diag
 
     for d in range(SEQ_LEN - 1, total_rows + total_cols - SEQ_LEN):
         diag = "".join(
-            lines[r][c]
-            for r in range(total_rows)
-            for c in range(total_cols)
-            if r + c == d
+            lines[r][c] for r in range(total_rows) for c in range(total_cols) if r + c == d
         )
         if len(diag) >= SEQ_LEN:
             yield diag
