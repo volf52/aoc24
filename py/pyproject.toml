@@ -23,6 +23,10 @@ d6p1 = "aoc24.day6:part1"
 d6p2 = "aoc24.day6:part2"
 d7p1 = "aoc24.day7:part1"
 d7p2 = "aoc24.day7:part2"
+d8p1 = "aoc24.day8:part1"
+d8p2 = "aoc24.day8:part2"
+
+test = "aoc24.day7:part1_test"
 
 [build-system]
 requires = ["hatchling"]
