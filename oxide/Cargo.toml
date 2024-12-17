@@ -21,6 +21,7 @@ borrow_interior_mutable_const = "allow"
 
 [dependencies]
 chumsky = "0.9.3"
+indicatif = "0.17.9"
 itertools = "0.13.0"
 pom = "3.4.0"
 regex = "1.11.1"
