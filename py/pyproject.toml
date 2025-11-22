@@ -27,6 +27,10 @@ d8p1 = "aoc24.day8:part1"
 d8p2 = "aoc24.day8:part2"
 d9p1 = "aoc24.day9:part1"
 d9p2 = "aoc24.day9:part2"
+d13p1 = "aoc24.day13:part1"
+d13p2 = "aoc24.day13:part2"
+d14p1 = "aoc24.day14:part1"
+d14p2 = "aoc24.day14:part2"
 
 [build-system]
 requires = ["hatchling"]
@@ -39,7 +43,10 @@ dev = [
   "numpy>=2.1.3",
   "parsy>=2.1",
   "polars>=1.16.0",
+  "pyrefly>=0.38.2",
+  "ruff>=0.14.1",
   "seaborn>=0.13.2",
+  "ty>=0.0.1a23",
 ]
 
 [tool.ruff]

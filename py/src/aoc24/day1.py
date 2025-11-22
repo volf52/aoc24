@@ -41,3 +41,8 @@ def part2():
     final = sum(sim_scores)
 
     print(f"Day 1 part 2: {final}")
+
+
+if __name__ == "__main__":
+    part1()
+    part2()
